@@ -8,10 +8,11 @@ import javax.swing.*;
 import javax.swing.border.BevelBorder;
 import javax.swing.plaf.BorderUIResource;
 
-public class AppFrame extends JFrame implements MouseMotionListener {
-    final int DEFAULT_SHORT_BREAK = 10;
-    final int DEFAULT_LONG_BREAK = 60;
-    final String VERSION = "0.1";
+public class AppFrame extends JFrame implements MouseMotionListener, ActionListener {
+    final int DEFAULT_SHORT_BREAK = 10;      // Minutes
+    final int DEFAULT_LONG_BREAK = 60;       // Minutes
+    final String VERSION = "0.2";
+    PopupFrame popupFrame;
 
     private JLabel lblNewLabel;
     private JLabel lblShortBreak, lblShortBreakValue;
@@ -20,9 +21,17 @@ public class AppFrame extends JFrame implements MouseMotionListener {
     private JLabel lblVersion;
     private boolean isDragged = false;
     private Point dragPoint;
+    private Timer shortTimer, longTimer;
 
     public AppFrame() {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        shortTimer = new Timer(DEFAULT_SHORT_BREAK*1000*60, this);
+        shortTimer.setActionCommand("Short Timer");
+        shortTimer.start();
+
+        longTimer = new Timer(DEFAULT_LONG_BREAK*1000*60, this);
+        longTimer.setActionCommand("Long Timer");
+        longTimer.start();
 
         try {
             UIManager.setLookAndFeel(
@@ -33,7 +42,7 @@ public class AppFrame extends JFrame implements MouseMotionListener {
 
         this.setResizable(false);
         this.setUndecorated(true);
-        setBounds(400, 400, 450, 300);
+        setBounds(800, 400, 450, 300);
         Shape shape = new RoundRectangle2D.Double(0,0,450,300,40,40);
         this.setShape(shape);
 
@@ -64,9 +73,12 @@ public class AppFrame extends JFrame implements MouseMotionListener {
         btnHide.setBounds(40, 240, 160, 40);
         getContentPane().add(btnHide);
 
-        shortBreakSlider = new JSlider(JSlider.HORIZONTAL,
-                2, 60, DEFAULT_SHORT_BREAK);
-        shortBreakSlider.addChangeListener(event -> lblShortBreakValue.setText(""+((JSlider)event.getSource()).getValue()));
+        shortBreakSlider = new JSlider(JSlider.HORIZONTAL, 2, 60, DEFAULT_SHORT_BREAK);
+        shortBreakSlider.addChangeListener(event -> {
+            lblShortBreakValue.setText(""+((JSlider)event.getSource()).getValue());
+            shortTimer.setDelay( ((JSlider)event.getSource()).getValue()*1000*60 );
+        } );
+
         shortBreakSlider.setBounds(50,80,300,60);
         shortBreakSlider.setMajorTickSpacing(29);
         shortBreakSlider.setMinorTickSpacing(1);
@@ -82,15 +94,17 @@ public class AppFrame extends JFrame implements MouseMotionListener {
         lblShortBreakValue.setBounds(380, 90, 60, 14);
         getContentPane().add(lblShortBreakValue);
 
-        shortBreakSlider = new JSlider(JSlider.HORIZONTAL,
-                30, 180, 55);
-        shortBreakSlider.addChangeListener(event -> lblLongBreakValue.setText(""+((JSlider)event.getSource()).getValue()));
-        shortBreakSlider.setBounds(50,170,300,DEFAULT_LONG_BREAK);
-        shortBreakSlider.setMajorTickSpacing(30);
-        shortBreakSlider.setMinorTickSpacing(5);
-        shortBreakSlider.setPaintTicks(true);
-        shortBreakSlider.setPaintLabels(true);
-        getContentPane().add(shortBreakSlider);
+        longBreakSlider = new JSlider(JSlider.HORIZONTAL,30, 180, 55);
+        longBreakSlider.addChangeListener(event -> {
+            lblLongBreakValue.setText(""+((JSlider)event.getSource()).getValue());
+            longTimer.setDelay( ((JSlider)event.getSource()).getValue()*1000*60 );
+        } );
+        longBreakSlider.setBounds(50,170,300,DEFAULT_LONG_BREAK);
+        longBreakSlider.setMajorTickSpacing(30);
+        longBreakSlider.setMinorTickSpacing(5);
+        longBreakSlider.setPaintTicks(true);
+        longBreakSlider.setPaintLabels(true);
+        getContentPane().add(longBreakSlider);
 
         lblLongBreak = new JLabel("Long break reminder time:");
         lblLongBreak.setBounds(40, 150, 315, 14);
@@ -114,5 +128,14 @@ public class AppFrame extends JFrame implements MouseMotionListener {
     @Override
     public void mouseMoved(MouseEvent e) {
         isDragged = false;
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if (e.getActionCommand().contentEquals("Short Timer")) {
+            popupFrame = new PopupFrame("Make the rest. Short break.", 10);
+        } else if (e.getActionCommand().contentEquals("Long Timer")) {
+            popupFrame = new PopupFrame("Make the rest. Long break.", 5*60);
+        }
     }
 }

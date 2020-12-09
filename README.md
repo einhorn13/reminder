@@ -1,2 +1,4 @@
-# reminder
-Crossplatform reminder of breaks in Java
+# Reminder
+Crossplatform reminder of breaks 
+
+(Java, Swing, GUI)
