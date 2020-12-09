@@ -11,7 +11,7 @@ import javax.swing.plaf.BorderUIResource;
 public class AppFrame extends JFrame implements MouseMotionListener, ActionListener {
     final int DEFAULT_SHORT_BREAK = 10;      // Minutes
     final int DEFAULT_LONG_BREAK = 60;       // Minutes
-    final String VERSION = "0.2";
+    final String VERSION = "0.3b";
     PopupFrame popupFrame;
 
     private JLabel lblNewLabel;
@@ -133,9 +133,9 @@ public class AppFrame extends JFrame implements MouseMotionListener, ActionListe
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getActionCommand().contentEquals("Short Timer")) {
-            popupFrame = new PopupFrame("Make the rest. Short break.", 10);
+            popupFrame = new PopupFrame("Take a short break.", 10);
         } else if (e.getActionCommand().contentEquals("Long Timer")) {
-            popupFrame = new PopupFrame("Make the rest. Long break.", 5*60);
+            popupFrame = new PopupFrame("Take a long break.", 5*60);
         }
     }
 }
