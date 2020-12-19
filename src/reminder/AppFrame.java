@@ -11,7 +11,7 @@ import javax.swing.plaf.BorderUIResource;
 public class AppFrame extends JFrame implements MouseMotionListener, ActionListener {
     final int DEFAULT_SHORT_BREAK = 10;      // Minutes
     final int DEFAULT_LONG_BREAK = 60;       // Minutes
-    final String VERSION = "0.3b";
+    final String VERSION = "0.4";
     PopupFrame popupFrame;
 
     private JLabel lblNewLabel;
@@ -19,19 +19,15 @@ public class AppFrame extends JFrame implements MouseMotionListener, ActionListe
     private JSlider shortBreakSlider, longBreakSlider;
     private JLabel lblLongBreak, lblLongBreakValue;
     private JLabel lblVersion;
+    private JProgressBar progressBar;
     private boolean isDragged = false;
     private Point dragPoint;
-    private Timer shortTimer, longTimer;
+    private Timer timerSec;
+    private long timerCount;
+    private ActivityMonitor activityMonitor;
 
     public AppFrame() {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        shortTimer = new Timer(DEFAULT_SHORT_BREAK*1000*60, this);
-        shortTimer.setActionCommand("Short Timer");
-        shortTimer.start();
-
-        longTimer = new Timer(DEFAULT_LONG_BREAK*1000*60, this);
-        longTimer.setActionCommand("Long Timer");
-        longTimer.start();
 
         try {
             UIManager.setLookAndFeel(
@@ -60,6 +56,16 @@ public class AppFrame extends JFrame implements MouseMotionListener, ActionListe
         lblVersion.setBounds(350, 20, 60, 20);
         getContentPane().add(lblVersion);
 
+        progressBar = new JProgressBar();
+        progressBar.setMinimum(0);
+        progressBar.setMaximum(480);
+        progressBar.setValue(0);
+        progressBar.setBounds(40,5,360,15);
+        progressBar.setString(""+progressBar.getValue());
+        progressBar.setStringPainted(true);
+        getContentPane().add(progressBar);
+        activityMonitor = new ActivityMonitor(progressBar);
+        progressBar.addMouseListener(activityMonitor);
 
         JButton btnOk = new JButton("Exit");
         btnOk.addActionListener(event -> System.exit(0));
@@ -76,7 +82,6 @@ public class AppFrame extends JFrame implements MouseMotionListener, ActionListe
         shortBreakSlider = new JSlider(JSlider.HORIZONTAL, 2, 60, DEFAULT_SHORT_BREAK);
         shortBreakSlider.addChangeListener(event -> {
             lblShortBreakValue.setText(""+((JSlider)event.getSource()).getValue());
-            shortTimer.setDelay( ((JSlider)event.getSource()).getValue()*1000*60 );
         } );
 
         shortBreakSlider.setBounds(50,80,300,60);
@@ -97,7 +102,6 @@ public class AppFrame extends JFrame implements MouseMotionListener, ActionListe
         longBreakSlider = new JSlider(JSlider.HORIZONTAL,30, 180, 55);
         longBreakSlider.addChangeListener(event -> {
             lblLongBreakValue.setText(""+((JSlider)event.getSource()).getValue());
-            longTimer.setDelay( ((JSlider)event.getSource()).getValue()*1000*60 );
         } );
         longBreakSlider.setBounds(50,170,300,DEFAULT_LONG_BREAK);
         longBreakSlider.setMajorTickSpacing(30);
@@ -113,6 +117,9 @@ public class AppFrame extends JFrame implements MouseMotionListener, ActionListe
         lblLongBreakValue = new JLabel("" + DEFAULT_LONG_BREAK);
         lblLongBreakValue.setBounds(380, 180, 60, 14);
         getContentPane().add(lblLongBreakValue);
+
+        timerSec = new Timer(1000, this);
+        timerSec.start();
     }
 
     @Override
@@ -132,10 +139,11 @@ public class AppFrame extends JFrame implements MouseMotionListener, ActionListe
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (e.getActionCommand().contentEquals("Short Timer")) {
-            popupFrame = new PopupFrame("Take a short break.", 10);
-        } else if (e.getActionCommand().contentEquals("Long Timer")) {
+        timerCount++;
+        if (timerCount%(longBreakSlider.getValue()*60)==0) {
             popupFrame = new PopupFrame("Take a long break.", 5*60);
+        } else if (timerCount%(shortBreakSlider.getValue()*60)==0) {
+            popupFrame = new PopupFrame("Take a short break.", 10);
         }
     }
 }

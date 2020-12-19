@@ -15,8 +15,11 @@ public class PopupFrame extends JFrame implements MouseMotionListener, ActionLis
     JButton btnSkip;
     Timer timer;
     private int timerCount;
+    private final int WINDOW_WIDTH = 350, WINDOWS_HEIGHT = 200;
 
     public PopupFrame(String msgText, int popupTime) {
+
+
         timerCount = popupTime;
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         timer = new Timer(1000, this);
@@ -24,7 +27,10 @@ public class PopupFrame extends JFrame implements MouseMotionListener, ActionLis
 
         this.setResizable(false);
         this.setUndecorated(true);
-        setBounds(800, 400, 350, 200);
+
+        // Create PopUp window at center of first screen
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        setBounds((screenSize.width-WINDOW_WIDTH)/2, (screenSize.height-WINDOWS_HEIGHT)/2, WINDOW_WIDTH, WINDOWS_HEIGHT);
         Shape shape = new RoundRectangle2D.Double(0,0,350,200,20,20);
         this.setShape(shape);
 
