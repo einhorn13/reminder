@@ -24,7 +24,11 @@ public class ActivityMonitor implements ActionListener, MouseListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        currentMousePoint = MouseInfo.getPointerInfo().getLocation();
+        if (MouseInfo.getPointerInfo()!=null)
+            currentMousePoint = MouseInfo.getPointerInfo().getLocation();
+        else
+            currentMousePoint = new Point(0,0);
+
         timerCounter++;
 
         if (lastMousePoint.x != currentMousePoint.x || lastMousePoint.y != currentMousePoint.y) {
