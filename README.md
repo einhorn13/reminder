@@ -14,6 +14,9 @@ todo:
 
 history:
 
+0.4a
+- NPE bugfix (crush on wake-up device)
+
 0.4 
 - autocenter position of popup window
 - added detection of work (mouse activities)
