@@ -5,13 +5,12 @@ Tiny java app reminds of breaks to rest the eyes when you are working at the com
 
 (Java, Swing, GUI)
 
+history:
 0.5
 
 - added background image
 - minimise in tray
 - support multiscreen
-
-history:
 
 0.4a
 - NPE bugfix (crush on wake-up device)
