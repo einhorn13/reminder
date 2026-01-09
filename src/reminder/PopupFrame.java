@@ -11,46 +11,86 @@ import java.awt.geom.RoundRectangle2D;
 public class PopupFrame extends JFrame implements MouseMotionListener, ActionListener {
     private boolean isDragged = false;
     private Point dragPoint;
-    JLabel lblInfo;
-    JButton btnSkip;
-    Timer timer;
+    private JLabel lblInfo;
+    private JButton btnSkip;
+    private Timer timer;
     private int timerCount;
-    private final int WINDOW_WIDTH = 350, WINDOWS_HEIGHT = 200;
+    private final int WINDOW_WIDTH = 350, WINDOW_HEIGHT = 200;
 
     public PopupFrame(String msgText, int popupTime) {
-
-
         timerCount = popupTime;
+        
+        // Use DISPOSE_ON_CLOSE so Alt+F4 works. 
+        // We override dispose() to ensure the timer stops.
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        
         timer = new Timer(1000, this);
         timer.start();
 
-        this.setResizable(false);
-        this.setUndecorated(true);
+        setResizable(false);
+        setUndecorated(true);
+        
+        setupLocation();
 
-        // Create PopUp window at center of first screen
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        setBounds((screenSize.width-WINDOW_WIDTH)/2, (screenSize.height-WINDOWS_HEIGHT)/2, WINDOW_WIDTH, WINDOWS_HEIGHT);
         Shape shape = new RoundRectangle2D.Double(0,0,350,200,20,20);
-        this.setShape(shape);
+        setShape(shape);
 
-        this.getContentPane().setLayout(null);
+        getContentPane().setLayout(null);
 
         lblInfo = new JLabel(msgText);
         lblInfo.setBounds(40, 20, 240, 40);
         lblInfo.setFont(new Font(lblInfo.getName(), Font.PLAIN, 18));
-        this.getContentPane().add(lblInfo);
+        getContentPane().add(lblInfo);
 
         btnSkip = new JButton();
         btnSkip.setBounds(130,120, 100, 40);
-        btnSkip.setText("Skip (" + timerCount+")");
-        btnSkip.addActionListener(event -> this.dispose());
-        this.getContentPane().add(btnSkip);
+        updateSkipButtonText();
+        btnSkip.addActionListener(event -> dispose());
+        getContentPane().add(btnSkip);
 
-        this.addMouseMotionListener(this);
+        addMouseMotionListener(this);
 
         setAlwaysOnTop(true);
         setVisible(true);
+    }
+
+    private void updateSkipButtonText() {
+        btnSkip.setText("Skip (" + timerCount + ")");
+    }
+
+    private void setupLocation() {
+        GraphicsConfiguration targetConfig = null;
+        try {
+            PointerInfo pointerInfo = MouseInfo.getPointerInfo();
+            if (pointerInfo != null) {
+                GraphicsDevice device = pointerInfo.getDevice();
+                targetConfig = device.getDefaultConfiguration();
+            }
+        } catch (Exception e) {
+            // Fallback to default
+        }
+
+        Rectangle bounds;
+        if (targetConfig != null) {
+            bounds = targetConfig.getBounds();
+        } else {
+            Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+            bounds = new Rectangle(0, 0, screenSize.width, screenSize.height);
+        }
+
+        int x = bounds.x + (bounds.width - WINDOW_WIDTH) / 2;
+        int y = bounds.y + (bounds.height - WINDOW_HEIGHT) / 2;
+        
+        setBounds(x, y, WINDOW_WIDTH, WINDOW_HEIGHT);
+    }
+
+    @Override
+    public void dispose() {
+        // Ensure timer is stopped to prevent resource leaks
+        if (timer != null && timer.isRunning()) {
+            timer.stop();
+        }
+        super.dispose();
     }
 
     @Override
@@ -71,10 +111,9 @@ public class PopupFrame extends JFrame implements MouseMotionListener, ActionLis
     @Override
     public void actionPerformed(ActionEvent e) {
         timerCount--;
-        btnSkip.setText("Skip (" + timerCount+")");
-        if (timerCount<=0) {
+        updateSkipButtonText();
+        if (timerCount <= 0) {
             this.dispose();
-            timer.stop();
         }
     }
 }
