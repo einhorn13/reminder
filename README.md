@@ -1,16 +1,15 @@
 # Reminder
 Crossplatform reminder of breaks
 
-Little java app reminds of breaks to rest the eyes when working at the computer
+Tiny java app reminds of breaks to rest the eyes when you are working at the computer
 
 (Java, Swing, GUI)
 
-todo:
+0.5
 
-- add background image
-- minimise in tray?
-- choice and add building system for project
-- implement versioning
+- added background image
+- minimise in tray
+- support multiscreen
 
 history:
 
